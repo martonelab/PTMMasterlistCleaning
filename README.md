@@ -1,9 +1,11 @@
-# PTM_Masterlist_cleaning
+# PTM Masterlist cleaning
 cleans up masterlist and aggregates photos, sequences and freezer contents
 
 **Do not use yet several Masterlist issues have yet to be resolved**
 
 all the code templates saves the files to the `output folder` and can be run independently
+
+## Files
 
 * `01_metadata_cleaning` - standarizes text data and coordinate data
 * `02_integrate_photos` - checks the photos on the Martone Lab server and adds the information to the masterlist
