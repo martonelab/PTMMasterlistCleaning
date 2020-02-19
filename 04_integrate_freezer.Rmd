@@ -1,0 +1,75 @@
+---
+title: "integrate freezer inventory"
+author: "Jasmine"
+date: "12/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+```
+
+#load data
+```{r}
+freezer <- read_xlsx("./data/minus_80_freezer_inventory.xlsx",sheet = 2)
+
+ptm <- read_csv("./output/masterlist_clean_sequences.csv")
+```
+
+#clean up data for use
+```{r}
+# take out all data not PTM
+p_inventory <- freezer %>% 
+  filter(Box != "Kyra Janot diluted; KGJ, A's PTM", 
+         str_detect(string = PTM, pattern = "KGJ", negate = TRUE),
+         str_detect(string = PTM, pattern = "A", negate = TRUE)) %>% 
+  mutate(`PTM#` = as.numeric(PTM))
+
+#combine data
+check <- left_join(ptm,p_inventory)
+
+rev_contents <- function(str, f){
+  if_else(!is.na(str), 
+          str,
+          if_else(is.na(f),
+                  "None",
+                  "Martonelab"))
+}
+
+inv <- check %>% 
+  mutate(`DNA location` = rev_contents(`DNA location`,PTM))
+
+#check data
+inv %>% 
+  group_by(`DNA location`) %>% 
+    summarise(n())
+```
+
+# Clean up data to make it human read-able
+```{r}
+#have it in human preferable form
+inv_arranged <- inv %>% 
+  arrange(`PTM#`)
+
+#pick the last column to remove all other useless columns created
+last_col <- grep("Project", colnames(inv_arranged))
+
+#splice the table
+remove_explain <- nrow(inv_arranged) - 1
+masterlist <- inv_arranged[1:remove_explain,1:last_col]
+
+# move the explainer row to the right place
+explaination <- inv_arranged[nrow(inv_arranged),1:last_col]
+
+masterlist_explaination <- rbind(explaination,masterlist)
+```
+
+
+#save data
+```{r}
+write_csv(masterlist_explaination,"./output/masterlist_sequence_freezer.csv",na = "")
+
+```
+

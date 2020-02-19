@@ -1,0 +1,110 @@
+---
+title: "Sequences"
+author: "Jasmine"
+date: "12/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+# Sequences
+to access files:
+1. connect to ubc VPN
+2. connect to server
+
+#if we need to update the sequences run the `update_seq` function
+```{r file access}
+update_seq <- function(update = T){
+  list.files("/Volumes/martonelab/Sequences/0_PTM/")
+  
+  list.files(p,pattern = "\\d{3}\\-\\d{3}", full.names = F,)
+  
+  photos <- list.files(p,pattern = "\\d{3}\\-\\d{3}", recursive = T)
+  
+  #dealing with sequences
+  seq <- list.files("/Volumes/martonelab/Sequences/0_PTM",recursive = T)
+  
+  seq_clean <- as.data.frame(seq) %>%
+    separate(seq, into = c("folder","file","fnm"),sep = "/", extra = "merge") %>%
+    filter(!is.na(fnm)) %>%
+    separate(fnm,
+             into = c("ptm","gene","other"),
+             sep = "_") %>%
+    mutate(gene = str_to_lower(gene),
+           gene = str_remove(gene,".ab"),
+           gene = str_remove(gene,"1"))
+  
+  write_csv(seq_clean,paste0(Sys.Date(),"server_sequence.csv"))
+
+}
+```
+
+# dealing with retrieved files
+
+# open files
+```{r}
+seq_clean <- read_csv("output/2019-12-18 server_sequence.csv")
+
+ptm <- read_csv("output/masterlist_clean.csv")
+
+ # prep file to be joined
+ptm_s <- ptm %>%
+  mutate(ptm = paste0("PTM", `PTM#`))
+```
+
+```{r echo=TRUE}
+# clean up sequence names
+genes <-  c("rbclrevnew", "gwsfn", "gwsrx", "psbar2", "psbaf", "F7553", "f|F57", "R1150K")
+
+seq_rev <- seq_clean %>%
+  filter(gene %in% genes) %>%
+  distinct(gene, file, .keep_all = TRUE) 
+
+# combine meta data to the files
+piv <- left_join(ptm_s, seq_clean, by = "ptm") %>%
+  mutate(
+    gene = if_else(gene == "", "none", gene),
+    gene = if_else(is.na(gene), "none", gene),
+    present = 1) %>%
+  pivot_wider(
+    names_from = gene, values_from = present,
+    values_fn = list(present = length)
+  ) %>%
+  distinct(`PTM#`, .keep_all = TRUE)
+
+
+combine_FR <- function(forward, reverse){
+  fr <- paste0(forward, reverse)
+  str_remove_all(fr,"NA")
+}
+
+#putting in forward and reverse
+piv_genetics <- piv %>% 
+  mutate(psbar2 = if_else(psbar2 == 1, "R",""),
+         psbaf = if_else(psbaf == 1, "F",""),
+         p = combine_FR(psbaf,psbar2),
+         gwsfn = if_else(gwsfn == 1, "F",""),
+         gwsrx = if_else(gwsrx == 1, "R",""),
+         g = combine_FR(gwsfn, gwsrx),
+         rbclrevnew = if_else(rbclrevnew == 1, "R",""),
+         f57 =  if_else(f57 == 1, "F",""),
+         r = combine_FR(f57, rbclrevnew))
+
+molecular_complete <- piv_genetics %>% 
+  mutate(CO1 = if_else(is.na(CO1), g, CO1),
+         psbA = if_else(is.na(psbA), p, psbA),
+         rbcL = if_else(is.na(rbcL), r, rbcL))
+```
+
+
+# clean up and save
+```{r}
+last_col <- grep("Project", colnames(molecular_complete))
+
+complete_table <- molecular_complete[1:last_col]
+
+write_csv(complete_table,"./output/masterlist_clean_sequences.csv")
+```
+

@@ -1,0 +1,61 @@
+---
+title: "02_Photos"
+author: "Jasmine"
+date: "12/02/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ptm <- read_csv("output/masterlist_clean.csv")
+```
+
+# run get photos to update list or else used cached copy
+```{r}
+get_photos <- function(update = F){
+  if (update) {
+    #need to be connected to the server to get photo information
+    p <- "/Volumes/martonelab/Photos"
+    
+    my_files <- list.files(
+      path = p,
+      all.files = T,
+      full.names = T,
+      recursive = T
+    )
+    
+    #clean up output
+    p_file <- as.data.frame(my_files) %>%
+      separate(my_files,
+               into = c("folder", "m", "p", "ph", "range", "photo"),
+               sep = "/",
+               extra = "merge") %>%
+      separate(photo, into = c("ptm", "extension"), sep = "\\.")
+    
+    write_csv(p_file, "./output/ptm_photos.csv", na = "")
+  }
+  else (read_csv("./output/ptm_photos.csv"))
+}
+
+ptm_photo <- get_photos(update = F)
+
+# get the number of photos per ptm
+img_clean <- ptm_photo %>% 
+  filter(str_detect(ptm,"PTM"),
+         range != "Quadra Bioblitz 2019") %>% 
+  mutate(ptm = str_remove(ptm, "PTM"),
+         num = str_extract(ptm,"[[:digit:]]{2,4}"),
+         num = as.numeric(num)) %>% 
+  group_by(num) %>% 
+  count(name = "Photo on server")
+```
+
+bring the data together
+```{r}
+ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num"))
+
+write_csv(ptm_p, "./output/master_list_clean_photos.csv")
+```
