@@ -18,12 +18,5 @@ all the code templates saves the files to the `output folder` and can be run ind
 * get access to PTM Master List
 * have R and and IDE (ie Rstudio)
 
-### package dependencies
+### dependencies
 `install.packages("googlesheets4", "tidyverse", "leaflet", "readxl", "janitor")`
-
-## To do
-* update googlesheet
-* add functionality - photos column
-* add functionality - automatic server -> googlesheet column
-* clean up documentation
-* teach everyone!
