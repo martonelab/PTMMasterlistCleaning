@@ -4,10 +4,14 @@ author: "Jasmine"
 date: "12/02/2020"
 output: html_document
 ---
+## Before you start
+1. connect to ubc VPN
+2. connect to server
 
 ```{r libraries}
 library(tidyverse)
 library(ptm)
+library(googlesheets4)
 ```
 
 ## Read in file
@@ -75,8 +79,23 @@ ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num"))
 ```
 
 
-
-```{r save data}
+## Saving
+- choose if you are continuing on to step 03 or updating to the masterlist
+```{r save data - csv}
 write_csv(ptm_p, "./output/master_list_clean_photos.csv")
+```
+
+#working on it
+```{r save data - sheets}
+# CURRENTLY USING THE DUP for testing purposes
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1dI2A0X3Ttvb3PTFNhM1R6bmXXaz_XkJyll2vsw8eAvY/edit#gid=0")
+
+save_col <- as_tibble(ptm_p$`Photo on server`, .name_repair = "minimal")
+names(save_col) <- "Photos on server NEW"
+
+sheets_edit(gs_ptm,
+            save_col, 
+            sheet = "Copy of All PTM data",
+            range = "AH2")
 ```
 
