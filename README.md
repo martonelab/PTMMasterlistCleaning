@@ -1,7 +1,10 @@
 # PTM Masterlist cleaning
 cleans up masterlist and aggregates photos, sequences and freezer contents
 
-all the code templates saves the files to the `output folder` and can be run independently
+### Usage
+- all the code templates saves the files to the `output folder` and can be run independently
+- main thing is to change what file is read in and where to save (as csv or add a column to the masterlist)
+- default is to save to the masterlist
 
 ### Prerequisites
 * get access to **Martone Lab server** via Botany IT (photos or sequences) - or use Martone Lab Computer

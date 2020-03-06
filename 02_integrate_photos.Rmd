@@ -5,20 +5,26 @@ date: "12/02/2020"
 output: html_document
 ---
 
-```{r}
+```{r libraries}
 library(tidyverse)
+library(ptm)
 ```
 
 ## Read in file
 - change this if you are updating the masterlist
-```{r}
+```{r choose load data}
+#if in sequence, following 01_cleaning
 ptm <- read_csv("output/masterlist_clean.csv")
+
+#if just updaing photos uncomment this line
+#ptm <- masterlist()
 ```
 
 # Fetch photos from server
+- **you must be connected to the server for this to work**
 - takes the longest to load
-- or else used cached copy `output/ptm_photos.csv`
-```{r}
+- or else used cached copy `output/DATE_ptm_photos.csv`
+```{r search servers}
 get_photos <- function(update = F){
   if (update) {
     #need to be connected to the server to get photo information
@@ -39,14 +45,19 @@ get_photos <- function(update = F){
                extra = "merge") %>%
       separate(photo, into = c("ptm", "extension"), sep = "\\.")
     
-    write_csv(p_file, "./output/ptm_photos.csv", na = "")
+    write_csv(p_file, 
+              paste0("./output/",format(Sys.Date(),"%Y_%b_%d"),"_ptm_photos.csv"), 
+              na = "")
   }
-  else (read_csv(paste0("./output/",format(Sys.Date(),"%Y_%b_%d"),"_ptm_photos.csv")))
+  else (read_csv("*ptm_photos.csv"))
 }
 
-ptm_photo <- get_photos(update = F)
+ptm_photo <- get_photos(update = T)
+```
 
-# get the number of photos per ptm
+
+get the number of photos per ptm
+```{r}
 img_clean <- ptm_photo %>% 
   filter(str_detect(ptm,"PTM"),
          range != "Quadra Bioblitz 2019") %>% 
@@ -57,9 +68,15 @@ img_clean <- ptm_photo %>%
   count(name = "Photo on server")
 ```
 
+
 bring the data together
 ```{r}
 ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num"))
+```
 
+
+
+```{r save data}
 write_csv(ptm_p, "./output/master_list_clean_photos.csv")
 ```
+
