@@ -9,11 +9,15 @@ output: html_document
 library(tidyverse)
 ```
 
+## Read in file
+- change this if you are updating the masterlist
 ```{r}
 ptm <- read_csv("output/masterlist_clean.csv")
 ```
 
-# run get photos to update list or else used cached copy
+# Fetch photos from server
+- takes the longest to load
+- or else used cached copy `output/ptm_photos.csv`
 ```{r}
 get_photos <- function(update = F){
   if (update) {
@@ -37,7 +41,7 @@ get_photos <- function(update = F){
     
     write_csv(p_file, "./output/ptm_photos.csv", na = "")
   }
-  else (read_csv("./output/ptm_photos.csv"))
+  else (read_csv(paste0("./output/",format(Sys.Date(),"%Y_%b_%d"),"_ptm_photos.csv")))
 }
 
 ptm_photo <- get_photos(update = F)
