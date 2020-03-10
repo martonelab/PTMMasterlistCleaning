@@ -22,3 +22,8 @@ cleans up masterlist and aggregates photos, sequences and freezer contents
 * `02_integrate_photos` - checks the photos on the Martone Lab server and adds the information to the masterlist **- use with caution**
 * `03_integrate_sequences` - checks the sequences on the Martone Lab server and adds the corresponding information **- use with caution**
 * `04_integrate_freezer` - updates the Master List based upon the freezer inventory done in January 2020
+
+### PTM Masterlist
+* review columns after the code is run
+* keep the columns after
+
