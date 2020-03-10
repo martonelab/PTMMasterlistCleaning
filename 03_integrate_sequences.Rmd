@@ -116,13 +116,15 @@ write_csv(complete_table,"./output/masterlist_clean_sequences.csv")
 
 #working on it
 - make sure sorting has not changed
+- might need to make this a function 
+- integrate the functional
 ```{r save data - sheets}
-# CURRENTLY USING THE DUP for testing purposes
-gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1dI2A0X3Ttvb3PTFNhM1R6bmXXaz_XkJyll2vsw8eAvY/edit#gid=0")
-
 save_col <- cbind(complete_table$CO1, complete_table$psbA, complete_table$rbcL) %>% 
   as_tibble()
 names(save_col) <- c("CO1 NEW","PSBA NEW", "RBCL NEW")
+
+# CURRENTLY USING THE DUP for testing purposes
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1dI2A0X3Ttvb3PTFNhM1R6bmXXaz_XkJyll2vsw8eAvY/edit#gid=0")
 
 sheets_edit(gs_ptm,
             save_col, 
