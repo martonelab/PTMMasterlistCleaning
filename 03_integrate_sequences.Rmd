@@ -4,7 +4,8 @@ author: "Jasmine"
 date: "12/02/2020"
 output: html_document
 ---
-
+# Known issues
+currently has issues with 2 digit numbers (has the 0) but cannot edit on server unless on martone lab computer
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ptm)
@@ -50,10 +51,11 @@ update_seq <- function(update = T){
 seq_clean <- read_csv("output/2019-12-18 server_sequence.csv")
 #!!! issues with being interperted as logicalin CO1 psba etc
 
-# ptm <- read_csv("output/masterlist_clean.csv")
-
-#if just updaing photos uncomment this line
-ptm <- masterlist()
+ptm <- read_csv("./output/master_list_clean_photos.csv",
+                col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
+  
+#if just updating photos uncomment this line
+#ptm <- masterlist()
 
  # prep file to be joined
 ptm_s <- ptm %>%
@@ -124,10 +126,10 @@ save_col <- cbind(complete_table$CO1, complete_table$psbA, complete_table$rbcL) 
 names(save_col) <- c("CO1 NEW","PSBA NEW", "RBCL NEW")
 
 # CURRENTLY USING THE DUP for testing purposes
-gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1dI2A0X3Ttvb3PTFNhM1R6bmXXaz_XkJyll2vsw8eAvY/edit#gid=0")
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
 
 sheets_edit(gs_ptm,
             save_col, 
-            sheet = "Copy of All PTM data",
-            range = "AH2") #last column
+            sheet = "All PTM data",
+            range = "AL2") #last column
 ```

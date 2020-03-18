@@ -1,0 +1,82 @@
+---
+title: "unique_names"
+author: "Jasmine"
+date: "07/08/2019"
+output: html_document
+---
+# For creating a standardized specimen list
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(googlesheets)
+library(tidyverse)
+
+#library(googlesheets4) # future will be googlesheets4
+#(ptm <- drive_get("PTM - Master List"))
+```
+
+```{r}
+#need to authenticate (see popup window)
+mysheets <- gs_ls()
+
+gs_master <- gs_title("PTM - Master List")
+
+#gets the data
+gs_ptm<- gs_read(gs_master, ws = 1) 
+
+#cleans up columns
+colnames(gs_ptm) <- gs_ptm[1,]
+new <- gs_ptm[-c(1,2),]
+```
+
+
+```{r}
+totals <- new %>% 
+  filter(Project == "bioblitz2019") %>% 
+  group_by(`Red/Coralline/Green/Brown`) %>% 
+  summarise(count = n())
+
+write_csv(totals,"bioblitz2019.csv")
+```
+
+
+```{r}
+species <- unique(new$`Final determination`)
+
+ditf <- unique(new$`Determination in the field`)
+
+both <- c(species,ditf) %>% 
+  str_trim(side = "both") %>%
+  str_remove(.,"\\n") %>% 
+  sort()
+  
+split <- both %>% 
+  str_split(.," ",n = 2) 
+
+cap <- map(split,~str_to_sentence(.x[1]))
+  
+cap_nm <- map2(split,cap,~c(.y,.x[2]) %>% 
+                 paste(.,collapse = " "))
+
+both_un <- cap_nm %>% 
+  str_remove(.,"NA") %>% 
+  unique() %>% 
+  tibble()
+
+nm <- unique(new$`Main Collector`)
+
+det <- unique(new$Determiners)
+```
+
+```{r}
+#gap_ss <- gs_copy(gs_master, to = "PTM_master_copy")
+#gap_ss <- gs_title("PTM_master_copy")
+
+##make new sheet
+#gap_ss <- gs_ws_new(gs_master,ws_title = "Value List",
+#                    input = both_un,trim = TRUE)
+gs_edit_cells(gs_master,ws = 7,anchor = "A1",input = both_un)
+gs_edit_cells(gs_master,ws = 7,anchor = "B1",input = nm)
+gs_edit_cells(gs_master,ws = 7,anchor = "C1",input = det)
+```
+

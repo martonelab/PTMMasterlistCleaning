@@ -71,5 +71,12 @@ masterlist_explaination <- rbind(explaination,masterlist)
 ```{r}
 write_csv(masterlist_explaination,"./output/masterlist_sequence_freezer.csv",na = "")
 
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
+
+#write everything to masterlist
+sheets_edit(gs_ptm,
+            masterlist_explaination, 
+            sheet = "All PTM data",
+            range = "A2") #last column
 ```
 

@@ -270,9 +270,13 @@ ptm_voucher <- ptm_names %>%
          `Voucher location` = if_else(str_detect(`Voucher location`,"na"),none,`Voucher location`)) %>% 
   select(-herb,-none) %>% 
   arrange(`PTM#`)
+
+instructions <- ptm_voucher[nrow(ptm_voucher),]
+rest_ptm <- ptm_voucher[1:nrow(ptm_voucher)-1,]
+ptm_complete <- rbind(instructions, rest_ptm)
 ```
 
 # Save the file
 ```{r}
-write_csv(ptm_voucher, "./output/masterlist_clean.csv", na = "")
+write_csv(ptm_complete, "./output/masterlist_clean.csv", na = "")
 ```
