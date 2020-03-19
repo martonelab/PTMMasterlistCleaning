@@ -368,20 +368,20 @@ summary {
 <div id="ptm-masterlist-cleaning" class="section level1">
 <h1>PTM Masterlist cleaning</h1>
 <p>cleans up masterlist and aggregates photos, sequences and freezer contents</p>
-<p>all the code templates saves the files to the <code>output folder</code> and can be run independently</p>
-<div id="prerequisites" class="section level3">
-<h3>Prerequisites</h3>
+<div id="pre-requisites" class="section level3">
+<h3>Pre-requisites</h3>
 <ul>
-<li>get access to <strong>Martone Lab server</strong> via Botany IT (photos or sequences) - or use Martone Lab Computer</li>
+<li>get access to <strong>Martone Lab server</strong> via Botany IT (photos or sequences) -&gt; or use Martone Lab Computer</li>
 <li>get access to <strong>PTM Master List</strong></li>
 <li>have R and IDE (ie. Rstudio) installed</li>
 </ul>
 </div>
 <div id="dependencies" class="section level3">
 <h3>Dependencies</h3>
+<blockquote>
+<p><code>install.packages(&quot;tidyverse&quot;, &quot;leaflet&quot;, &quot;readxl&quot;, &quot;janitor&quot;)</code> <code>devtools::install_github(&quot;laijasmine/ptm&quot;)</code></p>
+</blockquote>
 <ul>
-<li><code>install.packages(&quot;tidyverse&quot;, &quot;leaflet&quot;, &quot;readxl&quot;, &quot;janitor&quot;)</code></li>
-<li><code>devtools::install_github(&quot;laijasmine/ptm&quot;)</code></li>
 <li><strong>2020 March Note</strong> <code>googlesheets4</code> - <code>write_sheets</code> functionality is not on CRAN yet: <code>devtools::install_github(&quot;tidyverse/googlesheets4&quot;)</code></li>
 </ul>
 </div>
@@ -389,9 +389,52 @@ summary {
 <h3>Files</h3>
 <ul>
 <li><code>01_metadata_cleaning</code> - standarizes text data and coordinate data</li>
-<li><code>02_integrate_photos</code> - checks the photos on the Martone Lab server and adds the information to the masterlist <strong>- use with caution</strong></li>
-<li><code>03_integrate_sequences</code> - checks the sequences on the Martone Lab server and adds the corresponding information <strong>- use with caution</strong></li>
+<li><code>02_integrate_photos</code> - checks the photos on the Martone Lab server and adds the information to the masterlist</li>
+<li><code>03_integrate_sequences</code> - checks the sequences on the Martone Lab server and adds the corresponding information</li>
 <li><code>04_integrate_freezer</code> - updates the Master List based upon the freezer inventory done in January 2020</li>
+</ul>
+</div>
+<div id="usage" class="section level3">
+<h3>Usage</h3>
+<ul>
+<li><strong>Note</strong> all the code templates saves the files to the <code>output folder</code> and can be run independently</li>
+</ul>
+<div id="before-you-do-anything---save-a-copy-of-the-masterlist-as-an-xlsx-file-in-the-server" class="section level5">
+<h5>*** <strong>BEFORE YOU DO ANYTHING</strong> - Save a copy of the masterlist as an xlsx file in the server ***</h5>
+<ul>
+<li>server: <code>martonelab/Lab Operation/masterlist_archive</code></li>
+<li>save as: <strong>YYYYMMMDD_PTM - Master List.xlsx</strong></li>
+<li>ie. <code>2020Mar18_PTM - Master List.xlsx</code></li>
+</ul>
+</div>
+<div id="usecases" class="section level4">
+<h4>Usecases:</h4>
+<ol style="list-style-type: decimal">
+<li>Clean from top to bottom</li>
+</ol>
+<ul>
+<li>run code files 01 to 04 in sequence</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Update photos or sequences</li>
+</ol>
+<ul>
+<li>run the corresponding code file (02 or 03)</li>
+<li>default is to save to the masterlist</li>
+</ul>
+<div id="how-to-switch-between-the-two" class="section level5">
+<h5>How to switch between the two</h5>
+<ul>
+<li>main thing is to change what file is read in and where to save (as csv or add a column to the masterlist)</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="ptm-masterlist" class="section level3">
+<h3>PTM Masterlist</h3>
+<ul>
+<li>review columns after the code is run</li>
+<li>keep the columns after</li>
 </ul>
 </div>
 </div>

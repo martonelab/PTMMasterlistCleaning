@@ -18,10 +18,20 @@ library(googlesheets4)
 - change this if you are updating the masterlist
 ```{r choose load data}
 #if in sequence, following 01_cleaning
-ptm <- read_csv("output/masterlist_clean.csv")
+# ptm <- read_csv("output/masterlist_clean.csv",
+#                 col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
 
-#if just updaing photos uncomment this line
-#ptm <- masterlist()
+update_or_clean_photo <- function(update = T){
+  if(update){
+    read_csv("output/masterlist_clean.csv",
+             col_types = "iccccccDcccccccccccccccccccnnccccciiccc")
+  }
+  else{
+    masterlist()
+  }
+}
+
+ptm <- update_or_clean_photo(update = T)
 ```
 
 # Fetch photos from server
@@ -69,13 +79,14 @@ img_clean <- ptm_photo %>%
          num = str_extract(ptm,"[[:digit:]]{2,4}"),
          num = as.numeric(num)) %>% 
   group_by(num) %>% 
-  count(name = "Photo on server")
+  count(name = "Photos on server NEW")
 ```
 
 
 bring the data together
 ```{r}
-ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num"))
+ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num")) %>% 
+  select(-`Photos on server NEW.x`)
 ```
 
 
@@ -87,21 +98,10 @@ write_csv(ptm_p, "./output/master_list_clean_photos.csv")
 
 #working on it
 ```{r save data - sheets}
-# CURRENTLY USING THE DUP for testing purposes
-# gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1dI2A0X3Ttvb3PTFNhM1R6bmXXaz_XkJyll2vsw8eAvY/edit#gid=0")
-# 
-# save_col <- as_tibble(ptm_p$`Photo on server`, .name_repair = "minimal")
-# names(save_col) <- "Photos on server NEW"
-# 
-# sheets_edit(gs_ptm,
-#             save_col, 
-#             sheet = "Copy of All PTM data",
-#             range = "AH2")
-# 
 gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
 
-save_col <- as_tibble(ptm_p$`Photo on server`, .name_repair = "minimal")
-names(save_col) <- "Photos on server NEW"
+save_col <- as_tibble(ptm_p$`Photos on server`, .name_repair = "minimal")
+names(save_col) <- "Photos on server NEW test"
 
 sheets_edit(gs_ptm,
             save_col, 

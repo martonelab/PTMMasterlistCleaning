@@ -14,10 +14,10 @@ library(googlesheets4)
 
 # Sequences
 Befor you start - to access files:
-1. connect to ubc VPN
+1. connect to UBC VPN
 2. connect to server
 
-#if we need to update the sequences run the `update_seq` function
+# if we need to update the sequences run the `update_seq` function
 ```{r file access}
 update_seq <- function(update = T){
   list.files("/Volumes/martonelab/Sequences/0_PTM/")
@@ -51,13 +51,19 @@ update_seq <- function(update = T){
 seq_clean <- read_csv("output/2019-12-18 server_sequence.csv")
 #!!! issues with being interperted as logicalin CO1 psba etc
 
-ptm <- read_csv("./output/master_list_clean_photos.csv",
-                col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
-  
-#if just updating photos uncomment this line
-#ptm <- masterlist()
+update_or_clean_seq <- function(update = T){
+  if(update){
+    read_csv("./output/master_list_clean_photos.csv",
+                 col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
+  }
+  else{
+    masterlist()
+  }
+}
 
- # prep file to be joined
+ptm <- update_or_clean_seq(update = T)
+
+# prep file to be joined
 ptm_s <- ptm %>%
   mutate(ptm = paste0("PTM", `PTM#`))
 ```
@@ -130,6 +136,6 @@ gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyq
 
 sheets_edit(gs_ptm,
             save_col, 
-            sheet = "All PTM data",
+            sheet = "Copy of All PTM data",
             range = "AL2") #last column
 ```

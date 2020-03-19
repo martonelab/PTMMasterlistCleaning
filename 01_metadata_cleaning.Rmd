@@ -21,39 +21,32 @@ library(ptm)
 ### Load file into R
 ```{r getting data from google sheets}
 # need to authenticate (see popup window)
-ptm <- masterlist()
+#ptm <- masterlist()
+
+pml <- "https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0"
+ptm <- googlesheets4::read_sheet(pml, sheet = "All PTM data", skip = 1,
+                            col_types = "iccccccDcccccccccccccccccccccccccc-iiccc")
+
+# ptm <- read_csv("/Volumes/martonelab/Lab Operation/masterlist_archive/2020Mar18_PTM - Master List.csv",
+#                 skip = 1,
+#                 col_types = "iccccccDcccccccccccccccccccnnccccc-")
 ```
 
 ```{r coodinate cleaning}
 # all records that have decimal degrees
 ptm_na <- filter(
   ptm,
-  !is.na(Latitude)
-)
+  !is.na(Latitude)) %>% 
+  mutate(Latitude = as.character(Latitude),
+         Longitude = as.character(Longitude))
 
-ptm_ll <- filter(
-  ptm,
-  !is.na(Latitude),
-  !str_detect(Latitude, "\""),
-  !str_detect(Latitude, "\'"),
-  !str_detect(Latitude, "N")
-) %>%
-  mutate(
-    Latitude = as.numeric(Latitude),
-    Longitude = as.numeric(Longitude)
-  )
-```
-
-# GPS Coordinates
-- Cleaning up all that are not decimal degrees
-- non decimal degree coordinates are less machine readable (ie DD"MM'SS format may mutate if the file is saved differently)
-```{r}
-# all records that need cleaning
-ptm_cord <- filter(
-  ptm,
-  !is.na(Latitude),
-  !ptm$`PTM#` %in% ptm_ll$`PTM#`
-)
+ptm_ll <- ptm %>% 
+  filter(!is.na(Latitude),
+         !str_detect(Latitude, "\""),
+         !str_detect(Latitude, "\'"),
+         !str_detect(Latitude, "N")) %>%
+  mutate(Latitude = as.numeric(Latitude),
+         Longitude = as.numeric(Longitude))
 ```
 
 ## Mapping the data in leaflet reveals the issues
@@ -71,6 +64,10 @@ leaflet() %>%
     clusterOptions = markerClusterOptions()
   )
 ```
+
+# GPS Coordinates
+- Cleaning up all that are not decimal degrees
+- non decimal degree coordinates are less machine readable (ie DD"MM'SS format may mutate if the file is saved differently)
 
 ### transforming data to match
 ```{r}
@@ -99,8 +96,7 @@ convert to decimal degrees
 xls_issue <- filter(
   ptm,
   !is.na(Latitude),
-  !ptm$`PTM#` %in% ptm_ll$`PTM#`
-)
+  !ptm$`PTM#` %in% ptm_ll$`PTM#`)
 
 # change the symbols to a space
 xls_issue$Latitude <- gsub("°", " ", xls_issue$Latitude)
@@ -139,8 +135,10 @@ ptm_gps <- ptm_gps %>%
     Latitude = as.numeric(Latitude),
     Longitude = as.numeric(Longitude)
   )
-
-map_all <- leaflet() %>%
+```
+## fixed map
+```{r}
+leaflet() %>%
   addProviderTiles("CartoDB") %>%
   addCircleMarkers(
     lng = ptm_gps$Longitude, lat = ptm_gps$Latitude,
