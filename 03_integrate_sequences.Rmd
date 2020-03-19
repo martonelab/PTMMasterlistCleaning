@@ -4,17 +4,20 @@ author: "Jasmine"
 date: "12/02/2020"
 output: html_document
 ---
-
+# Known issues
+currently has issues with 2 digit numbers (has the 0) but cannot edit on server unless on martone lab computer
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(ptm)
+library(googlesheets4)
 ```
 
 # Sequences
-to access files:
-1. connect to ubc VPN
+Befor you start - to access files:
+1. connect to UBC VPN
 2. connect to server
 
-#if we need to update the sequences run the `update_seq` function
+# if we need to update the sequences run the `update_seq` function
 ```{r file access}
 update_seq <- function(update = T){
   list.files("/Volumes/martonelab/Sequences/0_PTM/")
@@ -46,10 +49,21 @@ update_seq <- function(update = T){
 # open files
 ```{r}
 seq_clean <- read_csv("output/2019-12-18 server_sequence.csv")
+#!!! issues with being interperted as logicalin CO1 psba etc
 
-ptm <- read_csv("output/masterlist_clean.csv")
+update_or_clean_seq <- function(update = T){
+  if(update){
+    read_csv("./output/master_list_clean_photos.csv",
+                 col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
+  }
+  else{
+    masterlist()
+  }
+}
 
- # prep file to be joined
+ptm <- update_or_clean_seq(update = T)
+
+# prep file to be joined
 ptm_s <- ptm %>%
   mutate(ptm = paste0("PTM", `PTM#`))
 ```
@@ -108,3 +122,20 @@ complete_table <- molecular_complete[1:last_col]
 write_csv(complete_table,"./output/masterlist_clean_sequences.csv")
 ```
 
+#working on it
+- make sure sorting has not changed
+- might need to make this a function 
+- integrate the functional
+```{r save data - sheets}
+save_col <- cbind(complete_table$CO1, complete_table$psbA, complete_table$rbcL) %>% 
+  as_tibble()
+names(save_col) <- c("CO1 NEW","PSBA NEW", "RBCL NEW")
+
+# CURRENTLY USING THE DUP for testing purposes
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
+
+sheets_edit(gs_ptm,
+            save_col, 
+            sheet = "Copy of All PTM data",
+            range = "AL2") #last column
+```

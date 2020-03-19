@@ -4,17 +4,41 @@ author: "Jasmine"
 date: "12/02/2020"
 output: html_document
 ---
+## Before you start
+1. connect to ubc VPN
+2. connect to server
 
-```{r}
+```{r libraries}
 library(tidyverse)
+library(ptm)
+library(googlesheets4)
 ```
 
-```{r}
-ptm <- read_csv("output/masterlist_clean.csv")
+## Read in file
+- change this if you are updating the masterlist
+```{r choose load data}
+#if in sequence, following 01_cleaning
+# ptm <- read_csv("output/masterlist_clean.csv",
+#                 col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
+
+update_or_clean_photo <- function(update = T){
+  if(update){
+    read_csv("output/masterlist_clean.csv",
+             col_types = "iccccccDcccccccccccccccccccnnccccciiccc")
+  }
+  else{
+    masterlist()
+  }
+}
+
+ptm <- update_or_clean_photo(update = T)
 ```
 
-# run get photos to update list or else used cached copy
-```{r}
+# Fetch photos from server
+- **you must be connected to the server for this to work**
+- takes the longest to load
+- or else used cached copy `output/DATE_ptm_photos.csv`
+```{r search servers}
 get_photos <- function(update = F){
   if (update) {
     #need to be connected to the server to get photo information
@@ -35,14 +59,19 @@ get_photos <- function(update = F){
                extra = "merge") %>%
       separate(photo, into = c("ptm", "extension"), sep = "\\.")
     
-    write_csv(p_file, "./output/ptm_photos.csv", na = "")
+    write_csv(p_file, 
+              paste0("./output/",format(Sys.Date(),"%Y_%b_%d"),"_ptm_photos.csv"), 
+              na = "")
   }
-  else (read_csv("./output/ptm_photos.csv"))
+  else (read_csv("*ptm_photos.csv"))
 }
 
-ptm_photo <- get_photos(update = F)
+ptm_photo <- get_photos(update = T)
+```
 
-# get the number of photos per ptm
+
+get the number of photos per ptm
+```{r}
 img_clean <- ptm_photo %>% 
   filter(str_detect(ptm,"PTM"),
          range != "Quadra Bioblitz 2019") %>% 
@@ -50,12 +79,33 @@ img_clean <- ptm_photo %>%
          num = str_extract(ptm,"[[:digit:]]{2,4}"),
          num = as.numeric(num)) %>% 
   group_by(num) %>% 
-  count(name = "Photo on server")
+  count(name = "Photos on server NEW")
 ```
+
 
 bring the data together
 ```{r}
-ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num"))
+ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num")) %>% 
+  select(-`Photos on server NEW.x`)
+```
 
+
+## Saving
+- choose if you are continuing on to step 03 or updating to the masterlist
+```{r save data - csv}
 write_csv(ptm_p, "./output/master_list_clean_photos.csv")
 ```
+
+#working on it
+```{r save data - sheets}
+gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
+
+save_col <- as_tibble(ptm_p$`Photos on server`, .name_repair = "minimal")
+names(save_col) <- "Photos on server NEW test"
+
+sheets_edit(gs_ptm,
+            save_col, 
+            sheet = "All PTM data",
+            range = "AK2")
+```
+
