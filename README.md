@@ -8,7 +8,7 @@ cleans up masterlist and aggregates photos, sequences and freezer contents
 
 ### Dependencies
 > `install.packages("tidyverse", "leaflet", "readxl", "janitor")`
-> `devtools::install_github("laijasmine/ptm")`
+> `devtools::install_github("martonelab/ptm")`
 
 - **2020 March Note** `googlesheets4` - `write_sheets` functionality is not on CRAN yet: `devtools::install_github("tidyverse/googlesheets4")`
 
