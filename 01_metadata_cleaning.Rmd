@@ -19,6 +19,8 @@ library(ptm)
 ```
 
 ### Load file into R
+- don't worry about the coerced from NA warning messages
+- it is the issue from 
 ```{r getting data from google sheets}
 # need to authenticate (see popup window)
 #ptm <- masterlist()
@@ -26,10 +28,6 @@ library(ptm)
 pml <- "https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0"
 ptm <- googlesheets4::read_sheet(pml, sheet = "All PTM data", skip = 1,
                             col_types = "iccccccDcccccccccccccccccccccccccc-iiccc")
-
-# ptm <- read_csv("/Volumes/martonelab/Lab Operation/masterlist_archive/2020Mar18_PTM - Master List.csv",
-#                 skip = 1,
-#                 col_types = "iccccccDcccccccccccccccccccnnccccc-")
 ```
 
 ```{r coodinate cleaning}
@@ -52,7 +50,7 @@ ptm_ll <- ptm %>%
 ## Mapping the data in leaflet reveals the issues
 - coordinates are poor for Chile (- are not in latitude or longitude) -> plotted in Kyrzkstan
 ### plotting data to check work
-```{r echo=FALSE}
+```{r initial map echo=FALSE}
 leaflet() %>%
   addProviderTiles("CartoDB") %>%
   addCircleMarkers(
@@ -70,7 +68,7 @@ leaflet() %>%
 - non decimal degree coordinates are less machine readable (ie DD"MM'SS format may mutate if the file is saved differently)
 
 ### transforming data to match
-```{r}
+```{r fixing names}
 ptm_ll$Longitude <- ifelse(grepl("Chile", ptm_ll$Locality) & !grepl("-", ptm_ll$Latitude),
   paste0("-", ptm_ll$Longitude),
   ptm_ll$Longitude
@@ -218,7 +216,8 @@ ptm_d <- ptm_gps %>%
 ```
 
 ## Date collected
-```{r}
+- wasn't able to get everything quite the right format but at least better than before
+```{r updating dates}
 # DD MMM YYYY
 ptm_date <- ptm_d %>%
   separate(`Date Collected`, into = c("d", "m", "y"), remove = F) %>%
@@ -250,6 +249,8 @@ check <- select(ptm_country, `PTM#`, Country, `StateProvince`, Locality, Longitu
 ```
 
 # Clean up names
+- removed the \n (new line)
+- trimmed off whitespace
 ```{r}
 ptm_names <- ptm_country %>%
   mutate(

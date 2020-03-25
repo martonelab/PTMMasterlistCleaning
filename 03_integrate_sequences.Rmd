@@ -12,45 +12,19 @@ library(ptm)
 library(googlesheets4)
 ```
 
-# Sequences
-Befor you start - to access files:
+Before you start - to access files:
 1. connect to UBC VPN
 2. connect to server
 
-# if we need to update the sequences run the `update_seq` function
-```{r file access}
-update_seq <- function(update = T){
-  list.files("/Volumes/martonelab/Sequences/0_PTM/")
-  
-  list.files(p,pattern = "\\d{3}\\-\\d{3}", full.names = F,)
-  
-  photos <- list.files(p,pattern = "\\d{3}\\-\\d{3}", recursive = T)
-  
-  #dealing with sequences
-  seq <- list.files("/Volumes/martonelab/Sequences/0_PTM",recursive = T)
-  
-  seq_clean <- as.data.frame(seq) %>%
-    separate(seq, into = c("folder","file","fnm"),sep = "/", extra = "merge") %>%
-    filter(!is.na(fnm)) %>%
-    separate(fnm,
-             into = c("ptm","gene","other"),
-             sep = "_") %>%
-    mutate(gene = str_to_lower(gene),
-           gene = str_remove(gene,".ab"),
-           gene = str_remove(gene,"1"))
-  
-  write_csv(seq_clean,paste0(Sys.Date(),"server_sequence.csv"))
-
-}
+## Specify some variables first
+```{r}
+use_data_from_csv <- TRUE # if FALSE uses data from masterlist
+get_sequences_from_server <- FALSE # Martone Lab server access is not needed if FALSE (will take a while if TRUE)
 ```
 
-# dealing with retrieved files
 
-# open files
-```{r}
-seq_clean <- read_csv("output/2019-12-18 server_sequence.csv")
-#!!! issues with being interperted as logicalin CO1 psba etc
-
+## open files
+```{r open masterlist}
 update_or_clean_seq <- function(update = T){
   if(update){
     read_csv("./output/master_list_clean_photos.csv",
@@ -68,10 +42,47 @@ ptm_s <- ptm %>%
   mutate(ptm = paste0("PTM", `PTM#`))
 ```
 
-```{r echo=TRUE}
-# clean up sequence names
-genes <-  c("rbclrevnew", "gwsfn", "gwsrx", "psbar2", "psbaf", "F7553", "f|F57", "R1150K")
+# if we need to update the sequences run the `update_seq` function
+```{r file access}
+update_seq <- function(update = T){
+  if(update){
+    #searching for all the sequences on the server
+    seq <- list.files("/Volumes/martonelab/Sequences/0_PTM",recursive = T)
+    
+    #seperate out file names
+    seq_clean <- as.data.frame(seq) %>%
+      separate(seq, into = c("folder","file","fnm"),sep = "/", extra = "merge") %>%
+      filter(!is.na(fnm)) %>%
+      separate(fnm,
+               into = c("ptm","gene","other"),
+               sep = "_") %>%
+      mutate(gene = str_to_lower(gene),
+             gene = str_remove(gene,".ab"),
+             gene = str_remove(gene,"1"))
+    
+    #save
+    write_csv(seq_clean, "./output/server_sequence.csv")
+  }
+  else(read_csv(paste0("./output/server_sequence.csv")))
+}
+```
 
+
+```{r read sequences}
+#!!! issues with being interperted as logicalin CO1 psba etc
+seq_clean <- update_seq(get_sequences_from_server)
+```
+
+# dealing with retrieved files
+- update the below if there are new barcode primers used
+- currently we have to most commonly used sequences for CO1, psbA and rbcl
+```{r genes}
+genes <-  c("rbclrevnew", "gwsfn", "gwsrx", "psbar2", "psbaf", "F7553", "f|F57", "R1150K")
+```
+
+inserting the F and R for all the gene names
+```{r coding FR echo=TRUE}
+# clean up sequence names
 seq_rev <- seq_clean %>%
   filter(gene %in% genes) %>%
   distinct(gene, file, .keep_all = TRUE) 
@@ -112,9 +123,8 @@ molecular_complete <- piv_genetics %>%
          rbcL = if_else(is.na(rbcL), r, rbcL))
 ```
 
-
 # clean up and save
-```{r}
+```{r formatting}
 last_col <- grep("Project", colnames(molecular_complete))
 
 complete_table <- molecular_complete[1:last_col]
@@ -122,10 +132,7 @@ complete_table <- molecular_complete[1:last_col]
 write_csv(complete_table,"./output/masterlist_clean_sequences.csv")
 ```
 
-#working on it
-- make sure sorting has not changed
-- might need to make this a function 
-- integrate the functional
+# note update sheet = "Copy of All PTM data" to all PTM Data once confirmed
 ```{r save data - sheets}
 save_col <- cbind(complete_table$CO1, complete_table$psbA, complete_table$rbcL) %>% 
   as_tibble()

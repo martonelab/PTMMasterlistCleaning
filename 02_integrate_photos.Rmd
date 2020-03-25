@@ -14,13 +14,18 @@ library(ptm)
 library(googlesheets4)
 ```
 
+## Pick some files
+- after changing this part you can hit Run > Restart R and Run All chunks
+- or run one by one if you want to know what exactly this code does
+```{r make some choices}
+get_data_from_csv <- TRUE # if FALSE uses data from masterlist
+get_photos_from_server <- TRUE # Martone Lab server access is not needed if FALSE
+```
+
+
 ## Read in file
 - change this if you are updating the masterlist
 ```{r choose load data}
-#if in sequence, following 01_cleaning
-# ptm <- read_csv("output/masterlist_clean.csv",
-#                 col_types = "iccccccDcccccccccccccccccccnnccccc-iiccc")
-
 update_or_clean_photo <- function(update = T){
   if(update){
     read_csv("output/masterlist_clean.csv",
@@ -31,10 +36,10 @@ update_or_clean_photo <- function(update = T){
   }
 }
 
-ptm <- update_or_clean_photo(update = T)
+ptm <- update_or_clean_photo(update = get_data_from_csv)
 ```
 
-# Fetch photos from server
+## Fetch photos from server
 - **you must be connected to the server for this to work**
 - takes the longest to load
 - or else used cached copy `output/DATE_ptm_photos.csv`
@@ -60,18 +65,18 @@ get_photos <- function(update = F){
       separate(photo, into = c("ptm", "extension"), sep = "\\.")
     
     write_csv(p_file, 
-              paste0("./output/",format(Sys.Date(),"%Y_%b_%d"),"_ptm_photos.csv"), 
+              "./output/ptm_photos.csv", 
               na = "")
   }
-  else (read_csv("*ptm_photos.csv"))
+  else (read_csv("./output/ptm_photos.csv"))
 }
 
-ptm_photo <- get_photos(update = T)
+ptm_photo <- get_photos(update = get_photos_from_server)
 ```
 
 
 get the number of photos per ptm
-```{r}
+```{r count photos}
 img_clean <- ptm_photo %>% 
   filter(str_detect(ptm,"PTM"),
          range != "Quadra Bioblitz 2019") %>% 
@@ -84,9 +89,9 @@ img_clean <- ptm_photo %>%
 
 
 bring the data together
-```{r}
+```{r join}
 ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num")) %>% 
-  select(-`Photos on server NEW.x`)
+  select(-`Photos on server NEW`)
 ```
 
 
@@ -96,7 +101,7 @@ ptm_p <- left_join(ptm, img_clean, by = c(`PTM#` = "num")) %>%
 write_csv(ptm_p, "./output/master_list_clean_photos.csv")
 ```
 
-#working on it
+# note update sheet = "Copy of All PTM data" to all PTM Data once confirmed
 ```{r save data - sheets}
 gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyqB4f8pltOkLfWz27TIFTxnm9hk/edit#gid=0")
 
@@ -108,4 +113,3 @@ sheets_edit(gs_ptm,
             sheet = "All PTM data",
             range = "AK2")
 ```
-
