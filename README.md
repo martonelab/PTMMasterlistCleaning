@@ -7,18 +7,17 @@ cleans up masterlist and aggregates photos, sequences and freezer contents
 * have R and IDE (ie. Rstudio) installed
 
 ### Dependencies
+run these lines of code in your Console if you use RStudio
 > `install.packages("tidyverse","leaflet","readxl","janitor","googlesheets4")`
 > `devtools::install_github("martonelab/ptm")`
 
 - **2020 March Note** `googlesheets4` - `write_sheets` functionality is not on CRAN yet: `devtools::install_github("tidyverse/googlesheets4")`
 
 ### Files
-
 * `01_metadata_cleaning` - standarizes text data and coordinate data
 * `02_integrate_photos` - checks the photos on the Martone Lab server and adds the information to the masterlist
 * `03_integrate_sequences` - checks the sequences on the Martone Lab server and adds the corresponding information
 * `04_integrate_freezer` - updates the Master List based upon the freezer inventory done in January 2020
-
 
 ### Usage
 - **Note** all the code templates saves the files to the `output folder` and can be run independently
@@ -41,3 +40,18 @@ cleans up masterlist and aggregates photos, sequences and freezer contents
 ### PTM Masterlist
 * review columns after the code is run
 * keep the columns after
+
+### File Naming
+Following these rules will ensure all information gets reflected properly when combined.
+
+
+#### Photos
+- PTM[insert number here].jpg
+- no spaces!
+- ie. PTM1234.jpg
+
+#### Sequences
+- please follow Nanuq guidelines
+- PTM[Number] __ [primername] __ [additional info provided by nanuq]
+- ie. PTM1500_TLF5_P1512217_076.ab1
+- should not be in any additional folders

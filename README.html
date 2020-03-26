@@ -378,9 +378,7 @@ summary {
 </div>
 <div id="dependencies" class="section level3">
 <h3>Dependencies</h3>
-<blockquote>
-<p><code>install.packages(&quot;tidyverse&quot;, &quot;leaflet&quot;, &quot;readxl&quot;, &quot;janitor&quot;)</code> <code>devtools::install_github(&quot;laijasmine/ptm&quot;)</code></p>
-</blockquote>
+<p>run these lines of code in your Console if you use RStudio &gt; <code>install.packages(&quot;tidyverse&quot;,&quot;leaflet&quot;,&quot;readxl&quot;,&quot;janitor&quot;,&quot;googlesheets4&quot;)</code> &gt; <code>devtools::install_github(&quot;martonelab/ptm&quot;)</code></p>
 <ul>
 <li><strong>2020 March Note</strong> <code>googlesheets4</code> - <code>write_sheets</code> functionality is not on CRAN yet: <code>devtools::install_github(&quot;tidyverse/googlesheets4&quot;)</code></li>
 </ul>
@@ -407,8 +405,8 @@ summary {
 <li>ie. <code>2020Mar18_PTM - Master List.xlsx</code></li>
 </ul>
 </div>
-<div id="usecases" class="section level4">
-<h4>Usecases:</h4>
+<div id="use-cases" class="section level4">
+<h4>Use cases:</h4>
 <ol style="list-style-type: decimal">
 <li>Clean from top to bottom</li>
 </ol>
@@ -422,12 +420,6 @@ summary {
 <li>run the corresponding code file (02 or 03)</li>
 <li>default is to save to the masterlist</li>
 </ul>
-<div id="how-to-switch-between-the-two" class="section level5">
-<h5>How to switch between the two</h5>
-<ul>
-<li>main thing is to change what file is read in and where to save (as csv or add a column to the masterlist)</li>
-</ul>
-</div>
 </div>
 </div>
 <div id="ptm-masterlist" class="section level3">
@@ -436,6 +428,27 @@ summary {
 <li>review columns after the code is run</li>
 <li>keep the columns after</li>
 </ul>
+</div>
+<div id="file-naming" class="section level3">
+<h3>File Naming</h3>
+<p>Following these rules will ensure all information gets reflected properly when combined.</p>
+<div id="photos" class="section level4">
+<h4>Photos</h4>
+<ul>
+<li>PTM[insert number here].jpg</li>
+<li>no spaces!</li>
+<li>ie. PTM1234.jpg</li>
+</ul>
+</div>
+<div id="sequences" class="section level4">
+<h4>Sequences</h4>
+<ul>
+<li>please follow Nanuq guidelines</li>
+<li>PTM[Number] __ [genename] __ [additional info provided by nanuq]</li>
+<li>ie. PTM1500_TLF5_P1512217_076.ab1</li>
+<li>should not be in any additional folders</li>
+</ul>
+</div>
 </div>
 </div>
 

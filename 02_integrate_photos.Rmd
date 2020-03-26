@@ -18,7 +18,7 @@ library(googlesheets4)
 - after changing this part you can hit Run > Restart R and Run All chunks
 - or run one by one if you want to know what exactly this code does
 ```{r make some choices}
-get_data_from_csv <- TRUE # if FALSE uses data from masterlist
+get_data_from_csv <- FALSE # if FALSE uses data from masterlist
 get_photos_from_server <- TRUE # Martone Lab server access is not needed if FALSE
 ```
 
