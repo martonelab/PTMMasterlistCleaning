@@ -53,5 +53,6 @@ Following these rules will ensure all information gets reflected properly when c
 #### Sequences
 - please follow Nanuq guidelines
 - PTM[Number] __ [primername] __ [additional info provided by nanuq]
-- ie. PTM1500_TLF5_P1512217_076.ab1
+- ie. PTM1500_TLF5_P1512217_076.ab1 (underscores!!)
 - should not be in any additional folders
+- Currently accepted primers: "rbclrevnew", "gwsfn", "gwsrx", "psbar2", "psbaf", "F7553", "f|F57", "R1150K"

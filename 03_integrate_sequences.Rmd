@@ -4,24 +4,26 @@ author: "Jasmine"
 date: "12/02/2020"
 output: html_document
 ---
-# Known issues
-currently has issues with 2 digit numbers (has the 0) but cannot edit on server unless on martone lab computer
+# Before you start - to access files:
+1. connect to UBC VPN
+2. connect to server
+
+# Known issues to fix
+- currently has issues with 2 digit numbers (has the 0) but cannot edit on server unless on martone lab computer
+- or sequences are in folders (need to unnest)
+
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ptm)
 library(googlesheets4)
 ```
 
-Before you start - to access files:
-1. connect to UBC VPN
-2. connect to server
-
 ## Specify some variables first
 ```{r}
-use_data_from_csv <- TRUE # if FALSE uses data from masterlist
-get_sequences_from_server <- FALSE # Martone Lab server access is not needed if FALSE (will take a while if TRUE)
+use_data_from_csv <- FALSE # if FALSE uses data from masterlist
+get_sequences_from_server <- TRUE # Martone Lab server access is not needed if FALSE (will take a while if TRUE)
 ```
-
 
 ## open files
 ```{r open masterlist}
@@ -43,33 +45,55 @@ ptm_s <- ptm %>%
 ```
 
 # if we need to update the sequences run the `update_seq` function
+- will now account for different folders
 ```{r file access}
 update_seq <- function(update = T){
   if(update){
     #searching for all the sequences on the server
-    seq <- list.files("/Volumes/martonelab/Sequences/0_PTM",recursive = T)
+    seq <- list.files("/Volumes/martonelab/Sequences/0_PTM/",
+                      full.names = T,
+                      recursive = T) #meaning to look through all folders
     
-    #seperate out file names
-    seq_clean <- as.data.frame(seq) %>%
-      separate(seq, into = c("folder","file","fnm"),sep = "/", extra = "merge") %>%
-      filter(!is.na(fnm)) %>%
-      separate(fnm,
+    #seperate out file names for files NOT in folder
+    seq_file <- as.data.frame(seq) %>%
+      separate(seq, into = c("general_folder","rest"), # deals with the folder information
+               sep = "//", extra = "merge") %>% 
+      separate(rest, into = c("folder","file","fnm"), # deals with the folder information
+               sep = "/", extra = "merge") %>%
+      #filter(!is.na(fnm)) %>%
+      separate(file, # deals with the file name
                into = c("ptm","gene","other"),
                sep = "_") %>%
-      mutate(gene = str_to_lower(gene),
+      mutate(gene = str_to_lower(gene), #standardizes some information
              gene = str_remove(gene,".ab"),
              gene = str_remove(gene,"1"))
     
-    #save
+    #seperate out file names for files IN FOLDERS
+    seq_folder <- as.data.frame(seq) %>%
+      separate(seq, into = c("general_folder","rest"), # deals with the folder information
+               sep = "//", extra = "merge") %>% 
+      separate(rest, into = c("folder","file","fnm"), # deals with the folder information
+               sep = "/", extra = "merge") %>%
+      #filter(!is.na(fnm)) %>%
+      separate(fnm, # deals with the file name
+               into = c("ptm","gene","other"),
+               sep = "_") %>%
+      mutate(gene = str_to_lower(gene), #standardizes some information
+             gene = str_remove(gene,".ab"),
+             gene = str_remove(gene,"1"))
+    
+    #combining the two variations in folder naming
+    seq_clean <- bind_rows(seq_folder, seq_file)
+    
+    #saves
     write_csv(seq_clean, "./output/server_sequence.csv")
   }
   else(read_csv(paste0("./output/server_sequence.csv")))
 }
 ```
 
-
+- this will take a while to run
 ```{r read sequences}
-#!!! issues with being interperted as logicalin CO1 psba etc
 seq_clean <- update_seq(get_sequences_from_server)
 ```
 
@@ -84,8 +108,8 @@ inserting the F and R for all the gene names
 ```{r coding FR echo=TRUE}
 # clean up sequence names
 seq_rev <- seq_clean %>%
-  filter(gene %in% genes) %>%
-  distinct(gene, file, .keep_all = TRUE) 
+  mutate(gene = str_to_lower(gene)) %>% # accounts for case differences
+  filter(gene %in% genes)  # selects on the sequences with primers we are interested in
 
 # combine meta data to the files
 piv <- left_join(ptm_s, seq_clean, by = "ptm") %>%
