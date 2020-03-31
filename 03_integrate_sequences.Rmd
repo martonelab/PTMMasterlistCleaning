@@ -167,6 +167,6 @@ gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyq
 
 sheets_edit(gs_ptm,
             save_col, 
-            sheet = "Copy of All PTM data",
+            sheet = "All PTM data",
             range = "AL2") #last column
 ```

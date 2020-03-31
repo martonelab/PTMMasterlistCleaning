@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
+library(googlesheets4)
 ```
 
 #load data
@@ -81,7 +82,7 @@ gs_ptm <- sheets_get("https://docs.google.com/spreadsheets/d/1vzVIT5gjQ0yCGwbAyq
 
 sheets_edit(gs_ptm,
             masterlist_explaination,
-            sheet = "Copy of All PTM data",
+            sheet = "All PTM data",
             range = "A2") #last column
 ```
 
