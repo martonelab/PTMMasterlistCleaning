@@ -1,5 +1,5 @@
 # PTM Masterlist cleaning
-cleans up masterlist and aggregates photos, sequences and freezer contents
+cleans up PTM masterlist and aggregates photos, sequences and freezer contents
 
 ### Pre-requisites
 * get access to **Martone Lab server** via Botany IT (photos or sequences) -> or use Martone Lab Computer
